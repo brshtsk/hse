@@ -139,6 +139,8 @@ void CheckEquality(const Matrix copy, const Matrix& orig) {
       assert(copy[i][j] == orig[i][j]);
     }
   }
+  orig[2][2] = -copy[2][2];
+  assert(orig[2][2] != copy[2][2]);
 }
 
 void test10() {
