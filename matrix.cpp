@@ -51,7 +51,7 @@ Matrix::Matrix(const Matrix &other)
 
 Matrix &Matrix::operator=(const Matrix &rhs) {
   // Мы не будем это использовать, но вообще.
-  Matrix &lhs = *this;
+  // Matrix &lhs = *this;
 
   if (&rhs == this) {
     return *this;
@@ -87,4 +87,16 @@ void Matrix::Swap(Matrix &lhs, Matrix &rhs) {
   std::swap(lhs.rowsNum_, rhs.rowsNum_);
   std::swap(lhs.colsNum_, rhs.colsNum_);
   std::swap(lhs.storage_, rhs.storage_);
+}
+
+Matrix &Matrix::operator=(Matrix &&victim) {
+  // Компилятор сам применяет MAO.
+  delete storage_;
+  rowsNum_ = victim.rowsNum_;
+  victim.rowsNum_ = 0;
+  colsNum_ = victim.colsNum_;
+  victim.colsNum_ = 0;
+  storage_ = victim.storage_;
+  victim.storage_ = nullptr;
+  return *this;
 }

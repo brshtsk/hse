@@ -1,9 +1,12 @@
 #ifndef MYMATRIX_MATRIX_H
 #define MYMATRIX_MATRIX_H
 
-#include <cstddef>
+#include <cstdint>
 
 class Matrix {
+ public:
+  class iterator {};
+  class const_iterator {};
  public:
   // Представляет строку.
   class Row {
@@ -74,7 +77,7 @@ class Matrix {
 
    private:
     Column(size_t colNum, Matrix *matrix)
-    : colNum_(colNum), matrix_(matrix) {}
+        : colNum_(colNum), matrix_(matrix) {}
    private:
     size_t colNum_;
     Matrix *matrix_;
@@ -174,7 +177,10 @@ class Matrix {
     return ConstColumn(colNum, this);
   }
 
-  Matrix &operator=(const Matrix &rhs) ;
+  // CAO (Copy assigment operator).
+  Matrix &operator=(const Matrix &rhs);
+  // MAO (Move assigment operator).
+  Matrix &operator=(Matrix &&victim);
 
  private:
   // Константные методы.

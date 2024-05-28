@@ -1,3 +1,5 @@
+// ToDo: спросить про категории итераторов.
+
 /*
  * Разработать такой класс Матрица:
  *
@@ -133,7 +135,7 @@ void test09() {
   }
 }
 
-void CheckEquality(const Matrix copy, const Matrix& orig) {
+void CheckEquality(const Matrix copy, const Matrix &orig) {
   for (size_t i = 0; i < copy.GetRowsNum(); ++i) {
     for (size_t j = 0; j < copy.GetColsNum(); ++j) {
       assert(copy[i][j] == orig[i][j]);
@@ -149,6 +151,48 @@ void test10() {
   CheckEquality(m, m);
 }
 
+class Foo {
+ private:
+  static size_t count_;
+  size_t ind_;
+
+  void Print(const char *note) {
+    std::cout << "count: " << count_ << ", " << note << ", instance num = " << ind_ << std::endl;
+  }
+ public:
+  Foo() {
+    ind_ = ++count_;
+    Print("Default constructor");
+  }
+
+  Foo(Foo &old) {
+    ind_ = ++count_;
+    Print("Copy constructor");
+  }
+
+  size_t GetCount() const {
+    return count_;
+  }
+
+  Foo(Foo &&old) {
+    ind_ = ++count_;
+    Print("Move constructor");
+  }
+};
+
+// Статические поля нужно конструировать вне класса.
+size_t Foo::count_ = 0;
+
+Foo test11_1() {
+  Foo f;
+  return f;
+}
+
+void test11() {
+  Foo foo;
+  Foo bar = test11_1();
+}
+
 int main() {
   test01();
   test02();
@@ -160,6 +204,7 @@ int main() {
   test08();
   test09();
   test10();
+  test11();
   std::cout << "Allright";
   return 0;
 }
