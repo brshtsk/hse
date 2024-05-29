@@ -5,8 +5,67 @@
 
 class Matrix {
  public:
-  class iterator {};
+  // Типы, необходимость которых определена стандартом (псевдонимы).
+  // Для C-массивов указатель на тип элемента этого массива является random access итератором.
+  using value_type = double;
+  using reference = double &;
+  using const_reference = const double &; // или можно просто вернуть double.
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+  using pointer = double *;
+  using const_pointer = const double *;
+
+  // Можно было бы использовать просто double*.
+  class iterator {
+   public:
+    iterator() : ptr_(nullptr) {}
+    iterator(double *ptr) : ptr_(ptr) {}
+   public:
+    reference operator*() {
+      return *ptr_;
+    }
+    iterator &operator++() {
+      ++ptr_;
+      return *this;
+    }
+    iterator &operator++(int) {
+      iterator tmp(ptr_++);
+      return tmp;
+    }
+    iterator &operator--() {
+      --ptr_;
+      return *this;
+    }
+    iterator &operator--(int) {
+      iterator tmp(ptr_--);
+      return tmp;
+    }
+    iterator &operator+=(size_type pos) {
+      ptr_ += pos;
+      return *this;
+    }
+    iterator &operator-=(size_type pos) {
+      ptr_ -= pos;
+      return *this;
+    }
+    iterator &operator=(const iterator &rhs) {
+      ptr_ = rhs.ptr_;
+      return *this;
+    }
+    bool operator==(const iterator &rhs) {
+      return ptr_ == rhs.ptr_;
+    }
+    bool operator!=(const iterator &rhs) {
+      return ptr_ != rhs.ptr_;
+    }
+
+   private:
+    double *ptr_;
+  };
+  // ToDo: реализовать итераторы для Matrix, Row, Column. Добавить методы begin, end для Matrix, Row, Column.
   class const_iterator {};
+  // class reverse_iterator {};
+  // class const_reverse_iterator {};
  public:
   // Представляет строку.
   class Row {
@@ -133,6 +192,15 @@ class Matrix {
  public:
   // Конструктор копирования.
   Matrix(const Matrix &other);
+
+ public:
+  iterator begin() const {
+    return iterator(storage_);
+  }
+
+  iterator end() const {
+    return iterator(storage_ + rowsNum_ * colsNum_);
+  }
 
  public:
   double At(size_t i, size_t j) const {

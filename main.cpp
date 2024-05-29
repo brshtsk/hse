@@ -193,6 +193,13 @@ void test11() {
   Foo bar = test11_1();
 }
 
+void test12() {
+  Matrix m(26, 2, 42);
+  for (Matrix::value_type it : m) {
+    std::cout << it << ' ';
+  }
+}
+
 int main() {
   test01();
   test02();
@@ -205,6 +212,7 @@ int main() {
   test09();
   test10();
   test11();
+  test12();
   std::cout << "Allright";
   return 0;
 }
