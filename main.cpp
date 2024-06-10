@@ -198,6 +198,31 @@ void test12() {
   for (Matrix::value_type it : m) {
     std::cout << it << ' ';
   }
+  std::cout << '\n';
+}
+
+void test13() {
+  Matrix m(3, 3, 42);
+  int count = 0;
+  auto it = m.begin();
+  while (it != m.end()) {
+    *it = count;
+    ++count;
+    ++it;
+  }
+
+  for (size_t i = 0; i < m.GetRowsNum(); ++i) {
+    for (size_t j = 0; j < m.GetColsNum(); ++j) {
+      assert(m[i][j] == i * m.GetColsNum() + j);
+    }
+    PrintMatrixRow(m[i]);
+  }
+
+  const Matrix mc = m;
+  auto it_col_const = mc(2).cbegin();
+  while (it_col_const != mc(2).cend()) {
+    assert(*(it_col_const++) == *(it_col_const) - 3);
+  }
 }
 
 int main() {
@@ -213,6 +238,7 @@ int main() {
   test10();
   test11();
   test12();
+  test13();
   std::cout << "Allright";
   return 0;
 }

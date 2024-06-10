@@ -24,6 +24,9 @@ class Matrix {
     reference operator*() {
       return *ptr_;
     }
+    reference operator*() const {
+      return *ptr_;
+    }
     iterator &operator++() {
       ++ptr_;
       return *this;
@@ -55,17 +58,184 @@ class Matrix {
     bool operator==(const iterator &rhs) {
       return ptr_ == rhs.ptr_;
     }
+    bool operator==(const iterator &rhs) const {
+      return ptr_ == rhs.ptr_;
+    }
     bool operator!=(const iterator &rhs) {
       return ptr_ != rhs.ptr_;
     }
-
+    bool operator!=(const iterator &rhs) const {
+      return ptr_ != rhs.ptr_;
+    }
    private:
     double *ptr_;
   };
-  // ToDo: реализовать итераторы для Matrix, Row, Column. Добавить методы begin, end для Matrix, Row, Column.
-  class const_iterator {};
-  // class reverse_iterator {};
-  // class const_reverse_iterator {};
+  class const_iterator {
+   public:
+    using reference = const double &;
+    using size_type = std::size_t;
+
+    const_iterator() : wrapped_it_() {}
+    const_iterator(const double *ptr) : wrapped_it_(const_cast<double *>(ptr)) {}
+    const_iterator(const iterator &it) : wrapped_it_(it) {}
+
+    reference operator*() const {
+      return *wrapped_it_;
+    }
+    const_iterator &operator++() {
+      ++wrapped_it_;
+      return *this;
+    }
+    const_iterator operator++(int) {
+      const_iterator tmp = *this;
+      ++wrapped_it_;
+      return tmp;
+    }
+    const_iterator &operator--() {
+      --wrapped_it_;
+      return *this;
+    }
+    const_iterator operator--(int) {
+      const_iterator tmp = *this;
+      --wrapped_it_;
+      return tmp;
+    }
+    const_iterator &operator+=(size_type pos) {
+      wrapped_it_ += pos;
+      return *this;
+    }
+    const_iterator &operator-=(size_type pos) {
+      wrapped_it_ -= pos;
+      return *this;
+    }
+    const_iterator &operator=(const const_iterator &rhs) {
+      if (this != &rhs) {
+        wrapped_it_ = rhs.wrapped_it_;
+      }
+      return *this;
+    }
+    bool operator==(const const_iterator &rhs) const {
+      return wrapped_it_ == rhs.wrapped_it_;
+    }
+    bool operator!=(const const_iterator &rhs) const {
+      return wrapped_it_ != rhs.wrapped_it_;
+    }
+
+   private:
+    iterator wrapped_it_;
+  };
+  class reverse_iterator {
+   public:
+    using reference = double &;
+    using size_type = std::size_t;
+
+    reverse_iterator() : wrapped_it_() {}
+    reverse_iterator(double *ptr) : wrapped_it_(ptr) {}
+    reverse_iterator(const iterator &it) : wrapped_it_(it) {}
+
+    reference operator*() {
+      iterator tmp = wrapped_it_;
+      --tmp;
+      return *tmp;
+    }
+    reverse_iterator &operator++() {
+      --wrapped_it_;
+      return *this;
+    }
+    reverse_iterator operator++(int) {
+      reverse_iterator tmp = *this;
+      --wrapped_it_;
+      return tmp;
+    }
+    reverse_iterator &operator--() {
+      ++wrapped_it_;
+      return *this;
+    }
+    reverse_iterator operator--(int) {
+      reverse_iterator tmp = *this;
+      ++wrapped_it_;
+      return tmp;
+    }
+    reverse_iterator &operator+=(size_type pos) {
+      wrapped_it_ -= pos;
+      return *this;
+    }
+    reverse_iterator &operator-=(size_type pos) {
+      wrapped_it_ += pos;
+      return *this;
+    }
+    reverse_iterator &operator=(const reverse_iterator &rhs) {
+      if (this != &rhs) {
+        wrapped_it_ = rhs.wrapped_it_;
+      }
+      return *this;
+    }
+    bool operator==(const reverse_iterator &rhs) const {
+      return wrapped_it_ == rhs.wrapped_it_;
+    }
+    bool operator!=(const reverse_iterator &rhs) const {
+      return wrapped_it_ != rhs.wrapped_it_;
+    }
+
+   private:
+    iterator wrapped_it_;
+  };
+  class const_reverse_iterator {
+   public:
+    using reference = const double &;
+    using size_type = std::size_t;
+
+    const_reverse_iterator() : wrapped_it_() {}
+    const_reverse_iterator(const double *ptr) : wrapped_it_(const_cast<double *>(ptr)) {}
+    const_reverse_iterator(const reverse_iterator &rit) : wrapped_it_(rit) {}
+
+    reference operator*() const {
+      reverse_iterator tmp = wrapped_it_;
+      --tmp;
+      return *tmp;
+    }
+    const_reverse_iterator &operator++() {
+      --wrapped_it_;
+      return *this;
+    }
+    const_reverse_iterator operator++(int) {
+      const_reverse_iterator tmp = *this;
+      --wrapped_it_;
+      return tmp;
+    }
+    const_reverse_iterator &operator--() {
+      ++wrapped_it_;
+      return *this;
+    }
+    const_reverse_iterator operator--(int) {
+      const_reverse_iterator tmp = *this;
+      ++wrapped_it_;
+      return tmp;
+    }
+    const_reverse_iterator &operator+=(size_type pos) {
+      wrapped_it_ -= pos;
+      return *this;
+    }
+    const_reverse_iterator &operator-=(size_type pos) {
+      wrapped_it_ += pos;
+      return *this;
+    }
+    const_reverse_iterator &operator=(const const_reverse_iterator &rhs) {
+      if (this != &rhs) {
+        wrapped_it_ = rhs.wrapped_it_;
+      }
+      return *this;
+    }
+    bool operator==(const const_reverse_iterator &rhs) const {
+      return wrapped_it_ == rhs.wrapped_it_;
+    }
+    bool operator!=(const const_reverse_iterator &rhs) const {
+      return wrapped_it_ != rhs.wrapped_it_;
+    }
+
+   private:
+    reverse_iterator wrapped_it_;
+  };
  public:
   // Представляет строку.
   class Row {
@@ -74,13 +244,97 @@ class Matrix {
     size_t size() const {
       return matrix_->GetColsNum();
     }
-
     double operator[](size_t colNum) const {
       return matrix_->GetEl(rowNum_, colNum);
     }
-
     double &operator[](size_t colNum) {
       return matrix_->GetEl(rowNum_, colNum);
+    }
+
+    // Итераторы для строки.
+   public:
+    using iterator = double *;
+    using const_iterator = const double *;
+
+    class reverse_iterator {
+     public:
+      reverse_iterator(iterator it) : it_(it) {}
+      reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      reverse_iterator operator++(int) {
+        reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      reverse_iterator operator--(int) {
+        reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      double &operator*() { return *it_; }
+      bool operator!=(const reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      iterator it_;
+    };
+
+    class const_reverse_iterator {
+     public:
+      const_reverse_iterator(const_iterator it) : it_(it) {}
+      const_reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      const_reverse_iterator operator++(int) {
+        const_reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      const_reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      const_reverse_iterator operator--(int) {
+        const_reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      const double &operator*() const { return *it_; }
+      bool operator!=(const const_reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      const_iterator it_;
+    };
+
+   public:
+    iterator begin() const {
+      return &matrix_->GetEl(rowNum_, 0);
+    }
+    const_iterator cbegin() const {
+      return &matrix_->GetEl(rowNum_, 0);
+    }
+    reverse_iterator rbegin() const {
+      return reverse_iterator(end());
+    }
+    const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+    }
+
+    iterator end() const {
+      return &matrix_->GetEl(rowNum_, 0) + matrix_->GetColsNum();
+    }
+    const_iterator cend() const {
+      return &matrix_->GetEl(rowNum_, 0) + matrix_->GetColsNum();
+    }
+    reverse_iterator rend() const {
+      return reverse_iterator(begin());
+    }
+    const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
     }
 
    private:
@@ -111,6 +365,51 @@ class Matrix {
     // Конструктор перевода Row в ConstRow.
     ConstRow(const Row &other) : rowNum_(other.rowNum_), const_matrix_{other.matrix_} {}
 
+   public:
+    using const_iterator = const double *;
+
+    class const_reverse_iterator {
+     public:
+      const_reverse_iterator(const_iterator it) : it_(it) {}
+      const_reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      const_reverse_iterator operator++(int) {
+        const_reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      const_reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      const_reverse_iterator operator--(int) {
+        const_reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      const double &operator*() const { return *it_; }
+      bool operator!=(const const_reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      const_iterator it_;
+    };
+
+   public:
+    const_iterator cbegin() const {
+      return &const_matrix_->GetEl(rowNum_, 0);
+    }
+    const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+    }
+
+    const_iterator cend() const {
+      return &const_matrix_->GetEl(rowNum_, 0) + const_matrix_->GetColsNum();
+    }
+    const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
+    }
+
    private:
     ConstRow(size_t rowNum, const Matrix *matrix)
         : rowNum_(rowNum), const_matrix_(matrix) {}
@@ -134,6 +433,143 @@ class Matrix {
       return matrix_->GetEl(rowNum, colNum_);
     }
 
+    class iterator {
+     public:
+      iterator(double *ptr, Matrix *matrix) : ptr_(ptr), matrix_(matrix) {}
+      iterator &operator++() {
+        ptr_ += matrix_->GetRowsNum();
+        return *this;
+      }
+      iterator operator++(int) {
+        iterator tmp = *this;
+        ptr_ += matrix_->GetRowsNum();
+        return tmp;
+      }
+      iterator &operator--() {
+        ptr_ -= matrix_->GetRowsNum();
+        return *this;
+      }
+      iterator operator--(int) {
+        iterator tmp = *this;
+        ptr_ -= matrix_->GetRowsNum();
+        return tmp;
+      }
+      double &operator*() { return *ptr_; }
+      bool operator!=(const iterator &other) const { return ptr_ != other.ptr_; }
+     private:
+      double *ptr_;
+      Matrix *matrix_;
+    };
+
+    class const_iterator {
+     public:
+      const_iterator(const double *ptr, Matrix *matrix) : ptr_(ptr), matrix_(matrix) {}
+      const_iterator &operator++() {
+        ptr_ += matrix_->GetRowsNum();
+        return *this;
+      }
+      const_iterator operator++(int) {
+        const_iterator tmp = *this;
+        ptr_ += matrix_->GetRowsNum();
+        return tmp;
+      }
+      const_iterator &operator--() {
+        ptr_ -= matrix_->GetRowsNum();
+        return *this;
+      }
+      const_iterator operator--(int) {
+        const_iterator tmp = *this;
+        ptr_ -= matrix_->GetRowsNum();
+        return tmp;
+      }
+      const double &operator*() const { return *ptr_; }
+      bool operator!=(const const_iterator &other) const { return ptr_ != other.ptr_; }
+     private:
+      const double *ptr_;
+      Matrix *matrix_;
+    };
+
+    class reverse_iterator {
+     public:
+      reverse_iterator(iterator it) : it_(it) {}
+      reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      reverse_iterator operator++(int) {
+        reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      reverse_iterator operator--(int) {
+        reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      double &operator*() { return *it_; }
+      bool operator!=(const reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      iterator it_;
+    };
+
+    class const_reverse_iterator {
+     public:
+      const_reverse_iterator(const_iterator it) : it_(it) {}
+      const_reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      const_reverse_iterator operator++(int) {
+        const_reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      const_reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      const_reverse_iterator operator--(int) {
+        const_reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      const double &operator*() const { return *it_; }
+      bool operator!=(const const_reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      const_iterator it_;
+    };
+
+   public:
+    iterator begin() const {
+      return iterator(&matrix_->GetEl(0, colNum_), matrix_);
+    }
+    const_iterator cbegin() const {
+      return const_iterator(&matrix_->GetEl(0, colNum_), matrix_);
+    }
+    reverse_iterator rbegin() const {
+      return reverse_iterator(end());
+    }
+    const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+    }
+
+    iterator end() const {
+      return iterator(&matrix_->GetEl(0, colNum_) + matrix_->GetRowsNum(), matrix_);
+    }
+    const_iterator cend() const {
+      return const_iterator(&matrix_->GetEl(0, colNum_) + matrix_->GetRowsNum(), matrix_);
+    }
+    reverse_iterator rend() const {
+      return reverse_iterator(begin());
+    }
+    const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
+    }
+
    private:
     Column(size_t colNum, Matrix *matrix)
         : colNum_(colNum), matrix_(matrix) {}
@@ -155,6 +591,77 @@ class Matrix {
 
     double &operator[](size_t rowNum) {
       return const_matrix_->GetEl(rowNum, colNum_);
+    }
+
+   public:
+    class const_iterator {
+     public:
+      const_iterator(const double *ptr, const Matrix *matrix) : ptr_(ptr), matrix_(matrix) {}
+      const_iterator &operator++() {
+        ptr_ += matrix_->GetRowsNum();
+        return *this;
+      }
+      const_iterator operator++(int) {
+        const_iterator tmp = *this;
+        ptr_ += matrix_->GetRowsNum();
+        return tmp;
+      }
+      const_iterator &operator--() {
+        ptr_ -= matrix_->GetRowsNum();
+        return *this;
+      }
+      const_iterator operator--(int) {
+        const_iterator tmp = *this;
+        ptr_ -= matrix_->GetRowsNum();
+        return tmp;
+      }
+      const double &operator*() const { return *ptr_; }
+      bool operator!=(const const_iterator &other) const { return ptr_ != other.ptr_; }
+     private:
+      const double *ptr_;
+      const Matrix *matrix_;
+    };
+
+    class const_reverse_iterator {
+     public:
+      const_reverse_iterator(const_iterator it) : it_(it) {}
+      const_reverse_iterator &operator++() {
+        --it_;
+        return *this;
+      }
+      const_reverse_iterator operator++(int) {
+        const_reverse_iterator tmp = *this;
+        --it_;
+        return tmp;
+      }
+      const_reverse_iterator &operator--() {
+        ++it_;
+        return *this;
+      }
+      const_reverse_iterator operator--(int) {
+        const_reverse_iterator tmp = *this;
+        ++it_;
+        return tmp;
+      }
+      const double &operator*() const { return *it_; }
+      bool operator!=(const const_reverse_iterator &other) const { return it_ != other.it_; }
+     private:
+      const_iterator it_;
+    };
+
+   public:
+    const_iterator cbegin() const {
+      return const_iterator(&const_matrix_->GetEl(0, colNum_), const_matrix_);
+    }
+    const_reverse_iterator crbegin() const {
+      return const_reverse_iterator(cend());
+    }
+
+    const_iterator cend() const {
+      return const_iterator(&const_matrix_->GetEl(0, colNum_) + const_matrix_->GetRowsNum(), const_matrix_);
+    }
+    const_reverse_iterator crend() const {
+      return const_reverse_iterator(cbegin());
     }
 
    public:
@@ -197,9 +704,27 @@ class Matrix {
   iterator begin() const {
     return iterator(storage_);
   }
+  const_iterator cbegin() const {
+    return const_iterator(storage_);
+  }
+  reverse_iterator rbegin() const {
+    return reverse_iterator(storage_ + rowsNum_ * colsNum_);
+  }
+  const_reverse_iterator crbegin() const {
+    return const_reverse_iterator(storage_ + rowsNum_ * colsNum_);
+  }
 
   iterator end() const {
     return iterator(storage_ + rowsNum_ * colsNum_);
+  }
+  const_iterator cend() const {
+    return const_iterator(storage_ + rowsNum_ * colsNum_);
+  }
+  reverse_iterator rend() const {
+    return reverse_iterator(storage_);
+  }
+  const_reverse_iterator crend() const {
+    return const_reverse_iterator(storage_);
   }
 
  public:
